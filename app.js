@@ -13,6 +13,14 @@ const weeklyCount = document.getElementById('weekly-count');
 const averagePulse = document.getElementById('average-pulse');
 const recordCount = document.getElementById('record-count');
 const todayDate = document.getElementById('today-date');
+const exportButton = document.getElementById('export-btn');
+const clearButton = document.getElementById('clear-btn');
+
+const RANGES = {
+  systolic: { min: 60, max: 250, label: '收縮壓' },
+  diastolic: { min: 30, max: 150, label: '舒張壓' },
+  pulse: { min: 30, max: 220, label: '脈搏' },
+};
 
 const getTheme = () => {
   const savedTheme = localStorage.getItem(THEME_KEY);
@@ -48,7 +56,9 @@ const toggleTheme = () => {
 const getRecords = () => {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    return Array.isArray(saved) ? saved : [];
+    return Array.isArray(saved)
+      ? saved.filter((record) => record && record.id && record.createdAt)
+      : [];
   } catch {
     return [];
   }
@@ -83,6 +93,15 @@ const getPressureStatus = (systolic, diastolic) => {
 
   return { label: '高血壓', className: 'high' };
 };
+
+const createText = (tagName, className, text) => {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  element.textContent = text;
+  return element;
+};
+
+const isInRange = (field, value) => value >= RANGES[field].min && value <= RANGES[field].max;
 
 const renderSummary = (records) => {
   if (todayDate) {
@@ -120,32 +139,77 @@ const renderRecords = () => {
   renderSummary(records);
 
   if (!records.length) {
-    recordList.innerHTML = '<li class="empty-state">尚未有任何血壓紀錄</li>';
+    recordList.replaceChildren(createText('li', 'empty-state', '尚未有任何血壓紀錄，從上方新增第一筆測量吧。'));
     return;
   }
 
-  recordList.innerHTML = records
-    .map((record) => {
-      const status = getPressureStatus(Number(record.systolic), Number(record.diastolic));
-      const notes = record.notes ? record.notes : '無備註';
+  const fragment = document.createDocumentFragment();
+  records.forEach((record) => {
+    const status = getPressureStatus(Number(record.systolic), Number(record.diastolic));
+    const item = document.createElement('li');
+    item.className = 'record-item';
 
-      return `
-        <li class="record-item">
-          <div class="record-top">
-            <div class="blood-value">${record.systolic}/${record.diastolic} mmHg</div>
-            <span class="tag ${status.className}">${status.label}</span>
-          </div>
-          <div class="meta">
-            <div>脈搏：${record.pulse} 次/分</div>
-            <div>用藥情況：${record.medication}</div>
-            <div>紀錄時間：${formatDateTime(record.createdAt)}</div>
-          </div>
-          <p class="note">備註：${notes}</p>
-        </li>
-      `;
-    })
-    .join('');
+    const top = document.createElement('div');
+    top.className = 'record-top';
+    top.append(
+      createText('div', 'blood-value', `${record.systolic}/${record.diastolic} mmHg`),
+      createText('span', `tag ${status.className}`, status.label),
+    );
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.append(
+      createText('div', '', `脈搏：${record.pulse} 次/分`),
+      createText('div', '', `用藥情況：${record.medication}`),
+      createText('div', '', `紀錄時間：${formatDateTime(record.createdAt)}`),
+    );
+
+    const note = createText('p', 'note', `備註：${record.notes || '無備註'}`);
+    const deleteButton = createText('button', 'delete-btn', '刪除');
+    deleteButton.type = 'button';
+    deleteButton.dataset.recordId = record.id;
+    deleteButton.setAttribute('aria-label', `刪除 ${formatDateTime(record.createdAt)} 的紀錄`);
+
+    item.append(top, meta, note, deleteButton);
+    fragment.appendChild(item);
+  });
+  recordList.replaceChildren(fragment);
 };
+
+recordList.addEventListener('click', (event) => {
+  const deleteButton = event.target.closest('[data-record-id]');
+  if (!deleteButton) return;
+
+  const recordId = Number(deleteButton.dataset.recordId);
+  if (!window.confirm('確定要刪除這筆血壓紀錄嗎？')) return;
+
+  saveRecords(getRecords().filter((record) => Number(record.id) !== recordId));
+  renderRecords();
+});
+
+exportButton?.addEventListener('click', () => {
+  const records = getRecords();
+  if (!records.length) {
+    alert('目前沒有可匯出的紀錄。');
+    return;
+  }
+
+  const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `pulsecare-records-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+});
+
+clearButton?.addEventListener('click', () => {
+  if (!getRecords().length) return;
+  if (!window.confirm('確定要清除全部血壓紀錄嗎？此操作無法復原。')) return;
+
+  saveRecords([]);
+  renderRecords();
+});
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -155,17 +219,27 @@ form.addEventListener('submit', (event) => {
   const pulse = document.getElementById('pulse').value.trim();
   const medication = document.getElementById('medication').value;
   const notes = document.getElementById('notes').value.trim();
+  const values = {
+    systolic: Number(systolic),
+    diastolic: Number(diastolic),
+    pulse: Number(pulse),
+  };
 
   if (!systolic || !diastolic || !pulse || !medication) {
     alert('請完整填寫所有必要欄位。');
     return;
   }
 
+  const invalidField = Object.keys(RANGES).find((field) => !Number.isInteger(values[field]) || !isInRange(field, values[field]));
+  if (invalidField) {
+    const range = RANGES[invalidField];
+    alert(`${range.label}請輸入 ${range.min} 至 ${range.max} 之間的整數。`);
+    return;
+  }
+
   const newRecord = {
     id: Date.now(),
-    systolic: Number(systolic),
-    diastolic: Number(diastolic),
-    pulse: Number(pulse),
+    ...values,
     medication,
     notes,
     createdAt: new Date().toISOString(),

@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PulseCare 個人血壓紀錄與趨勢摘要工具" />
+    <meta name="theme-color" content="#0b1118" />
     <title>血壓管理 App</title>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -18,7 +20,7 @@
             </div>
           </div>
           <div class="header-actions">
-            <span class="sync-status"><span class="status-dot"></span>資料已同步</span>
+            <span class="sync-status"><span class="status-dot"></span>資料儲存在本機</span>
           <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切換佈景主題">
             <span id="theme-icon" aria-hidden="true">🌙</span>
             <span id="theme-label">深色</span>
@@ -114,10 +116,20 @@
               <p class="eyebrow">ACTIVITY LOG</p>
               <h2>最近的測量</h2>
             </div>
-            <span id="record-count" class="record-count">0 筆紀錄</span>
+            <div class="list-actions">
+              <span id="record-count" class="record-count">0 筆紀錄</span>
+              <button id="export-btn" class="text-btn" type="button">匯出資料</button>
+              <button id="clear-btn" class="text-btn danger-btn" type="button">清除全部</button>
+            </div>
           </div>
           <ul id="record-list" class="record-list"></ul>
+          <p class="privacy-note">資料只儲存在此裝置的瀏覽器中，不會自動上傳。若要更換裝置，請先匯出備份。</p>
         </section>
+
+        <aside class="health-note" aria-label="健康提醒">
+          <strong>健康提醒</strong>
+          <span>本工具僅供日常紀錄，不取代醫師診斷。若血壓持續偏高，或出現胸痛、呼吸困難、意識異常等症狀，請立即尋求醫療協助。</span>
+        </aside>
       </main>
     </div>
 

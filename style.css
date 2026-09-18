@@ -250,6 +250,26 @@ textarea {
   margin-bottom: 20px;
 }
 
+.list-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.text-btn {
+  border: 0;
+  padding: 4px 0;
+  background: transparent;
+  color: var(--primary);
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.text-btn:hover { text-decoration: underline; }
+.danger-btn { color: var(--danger); }
+.text-btn:focus-visible, .delete-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
 .record-list {
   list-style: none;
   margin: 0;
@@ -260,11 +280,25 @@ textarea {
 }
 
 .record-item {
+  position: relative;
   border: 1px solid var(--border);
   background: var(--card-soft);
   border-radius: 10px;
   padding: 16px;
 }
+
+.delete-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: .75rem;
+  cursor: pointer;
+}
+
+.delete-btn:hover { color: var(--danger); }
 
 .record-top {
   display: flex;
@@ -324,6 +358,27 @@ textarea {
   text-align: center;
 }
 
+.privacy-note {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: .76rem;
+  line-height: 1.6;
+}
+
+.health-note {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-left: 3px solid var(--warning);
+  padding: 2px 0 2px 16px;
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.6;
+}
+
+.health-note strong { color: var(--text); white-space: nowrap; }
+
 @media (max-width: 760px) {
   .app-container { padding: 22px 16px 40px; }
   .header-inner {
@@ -345,4 +400,7 @@ textarea {
   }
 
   .card { padding: 22px 18px; }
+  .section-header { align-items: flex-start; gap: 12px; }
+  .list-actions { flex-wrap: wrap; justify-content: flex-end; gap: 8px 12px; }
+  .health-note { flex-direction: column; gap: 3px; }
 }
