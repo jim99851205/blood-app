@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>血壓管理 App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="header">
+        <div class="header-inner">
+          <h1>血壓管理 App</h1>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切換佈景主題">
+            <span id="theme-icon" aria-hidden="true">🌙</span>
+            <span id="theme-label">深色</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="card form-card">
+          <h2>新增血壓紀錄</h2>
+          <form id="blood-form">
+            <div class="form-grid">
+              <label>
+                <span>收縮壓 (mmHg)</span>
+                <input id="systolic" type="number" min="0" step="1" placeholder="例如：118" required />
+              </label>
+
+              <label>
+                <span>舒張壓 (mmHg)</span>
+                <input id="diastolic" type="number" min="0" step="1" placeholder="例如：76" required />
+              </label>
+
+              <label>
+                <span>脈搏 (次/分)</span>
+                <input id="pulse" type="number" min="0" step="1" placeholder="例如：72" required />
+              </label>
+
+              <label>
+                <span>用藥情況</span>
+                <select id="medication" required>
+                  <option value="">請選擇</option>
+                  <option value="無">無</option>
+                  <option value="已服藥">已服藥</option>
+                  <option value="未服藥">未服藥</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="full-width">
+              <span>備註</span>
+              <textarea id="notes" rows="3" placeholder="例如：早上測量，感覺疲倦"></textarea>
+            </label>
+
+            <button type="submit" class="primary-btn">儲存紀錄</button>
+          </form>
+        </section>
+
+        <section class="card list-card">
+          <div class="section-header">
+            <h2>血壓紀錄列表</h2>
+          </div>
+          <ul id="record-list" class="record-list"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
