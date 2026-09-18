@@ -10,17 +10,67 @@
     <div class="app-container">
       <header class="header">
         <div class="header-inner">
-          <h1>血壓管理 App</h1>
+          <div class="brand-lockup">
+            <div class="brand-mark" aria-hidden="true">+</div>
+            <div>
+              <p class="eyebrow">PERSONAL HEALTH OS</p>
+              <h1>PulseCare</h1>
+            </div>
+          </div>
+          <div class="header-actions">
+            <span class="sync-status"><span class="status-dot"></span>資料已同步</span>
           <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切換佈景主題">
             <span id="theme-icon" aria-hidden="true">🌙</span>
             <span id="theme-label">深色</span>
           </button>
+          </div>
         </div>
       </header>
 
       <main class="content">
+        <section class="welcome-panel">
+          <div>
+            <p class="eyebrow">OVERVIEW / <span id="today-date">今日</span></p>
+            <h2>掌握每一次心跳，<br /><em>讓健康更有依據。</em></h2>
+            <p class="welcome-copy">集中管理你的血壓趨勢，讓日常照護變得更簡單、更有方向。</p>
+          </div>
+          <div class="welcome-orbit" aria-hidden="true">
+            <span class="orbit-ring ring-one"></span>
+            <span class="orbit-ring ring-two"></span>
+            <span class="pulse-line">⌁</span>
+            <span class="orbit-label">心率<br /><strong>LIVE</strong></span>
+          </div>
+        </section>
+
+        <section class="metrics" aria-label="健康摘要">
+          <article class="metric-card featured-metric">
+            <div class="metric-heading"><span>最近一次讀值</span><span class="metric-icon">↗</span></div>
+            <strong id="latest-pressure">--/--</strong>
+            <span class="metric-unit">mmHg</span>
+            <div class="metric-foot"><span id="latest-status" class="tag neutral">等待紀錄</span><span id="latest-time">尚無資料</span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-heading"><span>本週紀錄</span><span class="metric-icon">▦</span></div>
+            <strong id="weekly-count">0</strong>
+            <span class="metric-unit">筆測量</span>
+            <div class="metric-foot"><span class="trend-up">● 持續追蹤</span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-heading"><span>平均脈搏</span><span class="metric-icon">♡</span></div>
+            <strong id="average-pulse">--</strong>
+            <span class="metric-unit">次 / 分</span>
+            <div class="metric-foot"><span>依全部紀錄計算</span></div>
+          </article>
+        </section>
+
         <section class="card form-card">
-          <h2>新增血壓紀錄</h2>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">QUICK ENTRY</p>
+              <h2>新增血壓紀錄</h2>
+            </div>
+            <span class="step-label">STEP 01 / 01</span>
+          </div>
           <form id="blood-form">
             <div class="form-grid">
               <label>
@@ -54,13 +104,17 @@
               <textarea id="notes" rows="3" placeholder="例如：早上測量，感覺疲倦"></textarea>
             </label>
 
-            <button type="submit" class="primary-btn">儲存紀錄</button>
+            <button type="submit" class="primary-btn"><span>儲存紀錄</span><span aria-hidden="true">→</span></button>
           </form>
         </section>
 
         <section class="card list-card">
           <div class="section-header">
-            <h2>血壓紀錄列表</h2>
+            <div>
+              <p class="eyebrow">ACTIVITY LOG</p>
+              <h2>最近的測量</h2>
+            </div>
+            <span id="record-count" class="record-count">0 筆紀錄</span>
           </div>
           <ul id="record-list" class="record-list"></ul>
         </section>

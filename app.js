@@ -6,6 +6,13 @@ const recordList = document.getElementById('record-list');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 const themeLabel = document.getElementById('theme-label');
+const latestPressure = document.getElementById('latest-pressure');
+const latestStatus = document.getElementById('latest-status');
+const latestTime = document.getElementById('latest-time');
+const weeklyCount = document.getElementById('weekly-count');
+const averagePulse = document.getElementById('average-pulse');
+const recordCount = document.getElementById('record-count');
+const todayDate = document.getElementById('today-date');
 
 const getTheme = () => {
   const savedTheme = localStorage.getItem(THEME_KEY);
@@ -77,8 +84,40 @@ const getPressureStatus = (systolic, diastolic) => {
   return { label: '高血壓', className: 'high' };
 };
 
+const renderSummary = (records) => {
+  if (todayDate) {
+    todayDate.textContent = new Intl.DateTimeFormat('zh-TW', { month: 'long', day: 'numeric' }).format(new Date());
+  }
+
+  if (recordCount) recordCount.textContent = `${records.length} 筆紀錄`;
+  if (!records.length) {
+    if (latestPressure) latestPressure.textContent = '--/--';
+    if (latestStatus) latestStatus.textContent = '等待紀錄';
+    if (latestTime) latestTime.textContent = '尚無資料';
+    if (weeklyCount) weeklyCount.textContent = '0';
+    if (averagePulse) averagePulse.textContent = '--';
+    return;
+  }
+
+  const latest = records[0];
+  const status = getPressureStatus(Number(latest.systolic), Number(latest.diastolic));
+  const weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const weeklyRecords = records.filter((record) => new Date(record.createdAt).getTime() >= weekStart);
+  const pulseTotal = records.reduce((total, record) => total + Number(record.pulse), 0);
+
+  if (latestPressure) latestPressure.textContent = `${latest.systolic}/${latest.diastolic}`;
+  if (latestStatus) {
+    latestStatus.textContent = status.label;
+    latestStatus.className = `tag ${status.className}`;
+  }
+  if (latestTime) latestTime.textContent = formatDateTime(latest.createdAt).slice(0, 16);
+  if (weeklyCount) weeklyCount.textContent = String(weeklyRecords.length);
+  if (averagePulse) averagePulse.textContent = String(Math.round(pulseTotal / records.length));
+};
+
 const renderRecords = () => {
   const records = getRecords();
+  renderSummary(records);
 
   if (!records.length) {
     recordList.innerHTML = '<li class="empty-state">尚未有任何血壓紀錄</li>';
